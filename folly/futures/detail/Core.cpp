@@ -469,6 +469,7 @@ void CoreBase::setCallback_(
     futures::detail::InlineContinuation allowInline) {
   DCHECK(!hasCallback());
 
+  // QM: then 的关键调用路径, 同步
   callback_ = std::move(callback);
   context_ = std::move(context);
 
@@ -497,6 +498,7 @@ void CoreBase::setCallback_(
             std::memory_order_relaxed)) {
       terminate_unexpected_state("setCallback", state);
     }
+    // QM: 有可能是从这里调用的
     doCallback(Executor::KeepAlive<>{}, state);
   } else if (state == State::Proxy) {
     if (!folly::atomic_compare_exchange_strong_explicit(
@@ -539,6 +541,7 @@ void CoreBase::setResult_(Executor::KeepAlive<>&& completingKA) {
               std::memory_order_relaxed)) {
         terminate_unexpected_state("setResult", state);
       }
+      // QM: 在 executor 中执行回调, 注意如果是 inline executor, 会在当前线程执行
       doCallback(std::move(completingKA), state);
       return;
     case State::OnlyResult:
@@ -612,6 +615,7 @@ void CoreBase::doCallback(
       if (addCompletingKA.get() == currentKeepAlive.get()) {
         keepAliveFunc(std::move(currentKeepAlive));
       } else {
+        // QM: 扔到 executor 中执行
         std::move(currentKeepAlive).add(std::move(keepAliveFunc));
       }
     }

@@ -130,6 +130,9 @@ void IOThreadPoolExecutor::add(
   if (threadList_.get().empty()) {
     throw std::runtime_error("No threads available");
   }
+  // QM: 选取 IO 线程的策略
+  // 如果处在 IO 线程中进行 add, 则仍在当前线程执行
+  // 否则, round robin 到下一个IO线程
   auto ioThread = pickThread();
 
   auto task = Task(std::move(func), expiration, std::move(expireCallback));
@@ -237,7 +240,7 @@ void IOThreadPoolExecutor::threadRun(ThreadPtr thread) {
       threadIdCollector_->removeTid(tid);
     }
   };
-
+  // QM: 这里为什么要清理 jemalloc 的缓存呢?
   auto idler = std::make_unique<MemoryIdlerTimeout>(ioThread->eventBase);
   ioThread->eventBase->runBeforeLoop(idler.get());
 
@@ -246,16 +249,16 @@ void IOThreadPoolExecutor::threadRun(ThreadPtr thread) {
   {
     ExecutorBlockingGuard guard{
         ExecutorBlockingGuard::TrackTag{}, this, getName()};
-    while (ioThread->shouldRun) {
+    while (ioThread->shouldRun) { // QM: 看起来只要 IO 线程不关闭，内部的 ventBase 就会一直重启
       ioThread->eventBase->loopForever();
     }
-    if (isJoin_) {
+    if (isJoin_) { // QM: 执行完剩余的任务
       while (ioThread->pendingTasks > 0) {
         ioThread->eventBase->loopOnce();
       }
     }
     idler.reset();
-    if (isWaitForAll_) {
+    if (isWaitForAll_) { // QM: 这里是为什么?
       // some tasks, like thrift asynchronous calls, create additional
       // event base hookups, let's wait till all of them complete.
       ioThread->eventBase->loop();

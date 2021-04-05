@@ -618,7 +618,7 @@ class Core final : private ResultHolder<T>, public CoreBase {
       }
       func(std::move(ka), std::move(core.result_));
     };
-
+    // QM: then 的关键调用路径, 同步
     setCallback_(std::move(callback), std::move(context), allowInline);
   }
 

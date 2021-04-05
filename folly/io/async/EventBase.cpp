@@ -537,7 +537,7 @@ void EventBase::applyLoopKeepAlive() {
       --keepAliveCount;
     }
   }
-
+  // QM: 这里的 Internal 到底是根据什么选择的?
   if (loopKeepAliveActive_ && keepAliveCount == 0) {
     // Restore the notification queue internal flag
     queue_->stopConsuming();
@@ -600,6 +600,10 @@ void EventBase::terminateLoopSoon() {
   // In this case, it won't wake up and notice that stop_ is set until it
   // receives another event.  Send an empty frame to the notification queue
   // so that the event loop will wake up even if there are no other events.
+
+  // QM: 仅在另外一个线程被调用时才需要, 因为如果terminateLoopSoon是在enb的线程调用的,
+  // 那显然没有在等事件。
+  // 否则, env 线程可能在等事件, 感知不到 stop_ 被置为 true。
   try {
     queue_->putMessage([] {});
   } catch (...) {
@@ -678,6 +682,9 @@ void EventBase::runInEventBaseThread(Func fn) noexcept {
   }
 
   // Short-circuit if we are already in our event base
+  // QM: 这里有两个队列, 做的事情是一样的, 都是要把 task 放到 evb 的线程执行
+  // -> 如果在 evb 线程, 放到一个线程不安全的队列中
+  // -> 否则, 放到一个 mpsc 队列中
   if (inRunningEventBaseThread()) {
     runInLoop(std::move(fn));
     return;

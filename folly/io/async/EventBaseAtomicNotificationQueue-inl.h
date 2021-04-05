@@ -271,6 +271,7 @@ bool EventBaseAtomicNotificationQueue<Task, Consumer>::drive(T&& consumer) {
   return !wasEmpty;
 }
 
+// QM: 收到 put message 触发的回调
 template <typename Task, typename Consumer>
 void EventBaseAtomicNotificationQueue<Task, Consumer>::handlerReady(
     uint16_t) noexcept {
@@ -282,7 +283,10 @@ void EventBaseAtomicNotificationQueue<Task, Consumer>::execute() {
   if (!edgeTriggeredSet_) {
     drainFd();
   }
+  // QM: 执行 queue 中的 task
+  // consumer type: EventBase::FuncRunner, just inline run task
   drive(consumer_);
+  // QM: 这里为什么还要执行一次runInLoop
   evb_->runInLoop(this, false, nullptr);
 }
 

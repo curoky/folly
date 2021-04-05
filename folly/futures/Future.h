@@ -1224,6 +1224,7 @@ class Future : private futures::detail::FutureBase<T> {
   /// - Calling code should act as if `valid() == false`,
   ///   i.e., as if `*this` was moved into RESULT.
   /// - `RESULT.valid() == true`
+  // QM: inline 是什么意思?
   template <typename F>
   Future<typename futures::detail::tryCallableResult<T, F>::value_type> then(
       F&& func) && {
