@@ -2325,6 +2325,7 @@ AsyncSocket::ReadResult AsyncSocket::performReadInternal(
     return ReadResult(READ_ERROR);
   }
 
+  // QM: preReceivedData_ 应该是空的, 因为语义上是说之前收到的数据, 并不是这次从 socket 里面读的
   if (preReceivedData_ && !preReceivedData_->empty()) {
     VLOG(5) << "AsyncSocket::performReadInternal() this=" << this
             << ", reading pre-received data";
@@ -2350,6 +2351,7 @@ AsyncSocket::ReadResult AsyncSocket::performReadInternal(
   struct msghdr msg;
 
   if (readAncillaryDataCallback_ == nullptr && num == 1) {
+    // QM: buflen(iov_len) 是预分配的内存长度
     bytes = netops_->recv(fd_, iovs[0].iov_base, iovs[0].iov_len, MSG_DONTWAIT);
   } else {
     if (readAncillaryDataCallback_) {
@@ -2663,6 +2665,7 @@ void AsyncSocket::handleRead() noexcept {
     IOBufIovecBuilder::IoVecVec iovs; // this can be an Asyncsocket member too
 
     try {
+      // QM: 提前准备读 buffer
       if (readMode == AsyncReader::ReadCallback::ReadMode::ReadVec) {
         prepareReadBuffers(iovs);
         num = iovs.size();
@@ -2704,6 +2707,7 @@ void AsyncSocket::handleRead() noexcept {
     VLOG(4) << "this=" << this << ", AsyncSocket::handleRead() got "
             << bytesRead << " bytes";
     if (bytesRead > 0) {
+      // QM: 这里触发可写回调
       readCallback_->readDataAvailable(size_t(bytesRead));
 
       // Fall through and continue around the loop if the read
