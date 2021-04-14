@@ -1654,6 +1654,7 @@ void AsyncSocket::writeImpl(
           << ", state=" << state_;
   DestructorGuard dg(this);
   unique_ptr<IOBuf> ioBuf(std::move(buf));
+  // QM: 这里需要在eventbase线程执行
   eventBase_->dcheckIsInEventBaseThread();
   WriteCallbackWithState callbackWithState(callback);
 
