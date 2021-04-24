@@ -1067,7 +1067,7 @@ void AsyncServerSocket::dispatchSocket(
   uint32_t startingIndex = callbackIndex_;
 
   // Short circuit if the callback is in the primary EventBase thread
-
+  // QM: 这里是 Round-robin 找一个 callback(在wangle 里面就是 IO 线程)
   CallbackInfo* info = nextCallback();
   if (info->eventBase == nullptr || info->eventBase == this->eventBase_) {
     info->callback->connectionAccepted(socket, address);
