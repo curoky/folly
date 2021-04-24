@@ -1073,7 +1073,7 @@ void AsyncServerSocket::dispatchSocket(
   auto timeBeforeEnqueue = std::chrono::steady_clock::now();
 
   // Short circuit if the callback is in the primary EventBase thread
-
+  // QM: 这里是 Round-robin 找一个 callback(在wangle 里面就是 IO 线程)
   CallbackInfo* info = nextCallback(socket);
   if (info->eventBase == nullptr || info->eventBase == this->eventBase_) {
     info->callback->connectionAccepted(socket, address, {timeBeforeEnqueue});
