@@ -362,6 +362,7 @@ class IOBufQueue {
    *       callback, tell the application how much of the buffer they
    *       have filled with data.
    */
+  // QM: 这个接口的含义比较重要, 翻译一下
   std::pair<void*, std::size_t> preallocate(
       std::size_t min,
       std::size_t newAllocationSize,
