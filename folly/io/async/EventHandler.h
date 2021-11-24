@@ -168,6 +168,7 @@ class EventHandler {
    * EventBase code.  This API is not guaranteed to remain stable or portable
    * in the future.
    */
+  // QM: 这里很关键, 内部事件, 不会算在活跃事件中。
   bool registerInternalHandler(uint16_t events) {
     return registerImpl(events, true);
   }

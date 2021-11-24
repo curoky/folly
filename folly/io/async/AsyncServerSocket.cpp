@@ -63,7 +63,7 @@ const uint32_t AsyncServerSocket::kDefaultMaxMessagesInQueue;
 void AsyncServerSocket::RemoteAcceptor::start(
     EventBase* eventBase, uint32_t maxAtOnce) {
   queue_.setMaxReadAtOnce(maxAtOnce);
-
+  // QM: 这里是放到 evb 里面跑的
   eventBase->runInEventBaseThread([=]() {
     callback_->acceptStarted();
     queue_.startConsuming(eventBase);
@@ -1075,6 +1075,8 @@ void AsyncServerSocket::dispatchSocket(
   // Short circuit if the callback is in the primary EventBase thread
   // QM: 这里是 Round-robin 找一个 callback(在wangle 里面就是 IO 线程)
   CallbackInfo* info = nextCallback(socket);
+  // QM: 如果 accept 的 evb 是 socket 的 evb, 就直接调用 callback
+  // 否则, 通过下面的 tryPutMessage 异步调用
   if (info->eventBase == nullptr || info->eventBase == this->eventBase_) {
     info->callback->connectionAccepted(socket, address, {timeBeforeEnqueue});
     return;

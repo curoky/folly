@@ -319,6 +319,7 @@ void EventBase::waitUntilRunning() {
 
 // enters the event_base loop -- will only exit when forced to
 bool EventBase::loop() {
+  // QM: 啥意思呀, 搞个 guard
   // Enforce blocking tracking and if we have a name override any previous one
   ExecutorBlockingGuard guard{ExecutorBlockingGuard::TrackTag{}, this, name_};
   return loopBody();
@@ -471,6 +472,12 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
       VLOG(11) << "EventBase " << this << " did not timeout";
     }
 
+    // QM: 这里res可能为-1/1, -1 表示事件回调执行失败, 1 表示没有事件可执行, 如果是 1, 正常来讲是可以break loop了。
+    // QM: 但是:
+    // QM:  1. ranLoopCallbacks 中回调执行完可能会重新注册上事件, 所以需下一次 loop 时再检查一次。
+    // QM:  2. 由于 NotificationQueue 注册时使用的是internal事件, 所以有可能 NotificationQueue 里面还有task没执行完, 因此下面
+    // QM:  才会再次判断 queue_->empty()
+    // QM: what's mean internal event?
     // Event loop indicated that there were no more events (NotificationQueue
     // was registered as an internal event and there were no other registered
     // events).
