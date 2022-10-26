@@ -64,7 +64,7 @@ cc_library(
         "@com_github_google_snappy//:snappy",
         "@com_github_jedisct1_libsodium//:libsodium",
         "@com_github_libevent_libevent//:libevent",
-        "@com_pagure_libaio//:libaio",
+        # "@com_pagure_libaio//:libaio",
         "@libdwarf",
         "@libiberty",
         "@libunwind",
