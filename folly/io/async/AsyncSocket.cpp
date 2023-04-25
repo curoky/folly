@@ -1745,6 +1745,7 @@ void AsyncSocket::writeImpl(
     return invalidState(callback);
   }
 
+  // QM: 一次 send 操作没有发送完全部数据，需要继续发送
   // Create a new WriteRequest to add to the queue
   WriteRequest* req;
   try {
