@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 curoky(cccuroky@gmail.com).
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 
 #pragma once
 
+#ifdef __APPLE__
+#include <TargetConditionals.h> // @manual
+#endif
+
 #if !defined(FOLLY_MOBILE)
 #if defined(__ANDROID__) || \
-    (defined(__APPLE__) && (TARGET_IPHONE_SIMULATOR || TARGET_OS_SIMULATOR || TARGET_OS_IPHONE))
+    (defined(__APPLE__) &&  \
+     (TARGET_IPHONE_SIMULATOR || TARGET_OS_SIMULATOR || TARGET_OS_IPHONE))
 #define FOLLY_MOBILE 1
 #else
 #define FOLLY_MOBILE 0
 #endif
-#endif  // FOLLY_MOBILE
+#endif // FOLLY_MOBILE
 
 #define FOLLY_HAVE_PTHREAD 1
 #define FOLLY_HAVE_PTHREAD_ATFORK 1
@@ -35,7 +40,6 @@
 #define FOLLY_HAVE_LIBGLOG 1
 
 // #define FOLLY_USE_JEMALLOC 1
-#define FOLLY_USE_LIBSTDCPP 1
 
 #if __has_include(<features.h>)
 #include <features.h>
@@ -58,16 +62,9 @@
 #define FOLLY_HAVE_WEAK_SYMBOLS 1
 #define FOLLY_HAVE_LINUX_VDSO 1
 #define FOLLY_HAVE_MALLOC_USABLE_SIZE 1
-
-// note: FOLLY_HAVE_INT128_T/FOLLY_SUPPLY_MISSING_INT128_TRAITS
-//   set 0 in gcc-11
-//   set 1 in gcc-10
-#define FOLLY_HAVE_INT128_T 0
-#define FOLLY_SUPPLY_MISSING_INT128_TRAITS 0
-
+#define FOLLY_HAVE_INT128_T 1
 #define FOLLY_HAVE_WCHAR_SUPPORT 1
-// #define FOLLY_HAVE_EXTRANDOM_SFMT19937 1
-// #define FOLLY_USE_LIBCPP 1
+#define FOLLY_HAVE_EXTRANDOM_SFMT19937 1
 #define HAVE_VSNPRINTF_ERRORS 1
 
 #define FOLLY_HAVE_LIBUNWIND 1
@@ -81,16 +78,14 @@
 #define FOLLY_HAVE_SHADOW_LOCAL_WARNINGS 1
 
 // #define FOLLY_HAVE_LIBLZ4 1
-#define FOLLY_HAVE_LIBLZMA 1
-#define FOLLY_HAVE_LIBSNAPPY 1
+// #define FOLLY_HAVE_LIBLZMA 1
+// #define FOLLY_HAVE_LIBSNAPPY 1
 #define FOLLY_HAVE_LIBZ 1
-#define FOLLY_HAVE_LIBZSTD 1
-#define FOLLY_HAVE_LIBBZ2 1
+// #define FOLLY_HAVE_LIBZSTD 1
+// #define FOLLY_HAVE_LIBBZ2 1
 
 #define FOLLY_LIBRARY_SANITIZE_ADDRESS 0
 
 // #define FOLLY_SUPPORT_SHARED_LIBRARY 1
 
 #define FOLLY_HAVE_LIBRT 1
-
-#define FOLLY_SANITIZE_ADDRESS 1
