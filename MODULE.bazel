@@ -4,16 +4,19 @@ module(
 )
 
 bazel_dep(name = "double-conversion", version = "")
-bazel_dep(name = "openssl", version = "")
+#bazel_dep(name = "openssl", version = "")
 bazel_dep(name = "zlib", version = "1.2.13")
-bazel_dep(name = "libevent", version = "")
+#bazel_dep(name = "libevent", version = "")
 bazel_dep(name = "gflags", version = "2.2.2")
 bazel_dep(name = "glog", version = "0.5.0")
 bazel_dep(name = "fmt", version = "8.1.1")
+# bazel_dep(name = "com_github_nelhage_rules_boost", version = "")
+#bazel_dep(name = "libdwarf", version = "")
+#bazel_dep(name = "libunwind", version = "")
+#bazel_dep(name = "libiberty", version = "")
+bazel_dep(name = "boringssl", version = "0.0.0-20240126-22d349c", repo_name = "openssl")
+#bazel_dep(name = "boost", version = "1.83.0.bcr.1")
 bazel_dep(name = "com_github_nelhage_rules_boost", version = "")
-bazel_dep(name = "libdwarf", version = "")
-bazel_dep(name = "libunwind", version = "")
-bazel_dep(name = "libiberty", version = "")
 
 # bazel_dep(name = "rules_cc", version = "0.0.6")
 # bazel_dep(name = "googletest", version = "1.12.1")
@@ -25,5 +28,8 @@ bazel_dep(name = "libiberty", version = "")
 # bazel_dep(name = "snappy", version = "")
 # bazel_dep(name = "xz_utils", version = "")
 
-boost_deps_ext = use_extension("@com_github_nelhage_rules_boost//:extensions.bzl", "boost_deps_ext")
-use_repo(boost_deps_ext, "boost")
+non_module_ros_repositories = use_extension("@com_github_nelhage_rules_boost//:boost/repositories.bzl", "non_module_dependencies")
+use_repo(
+    non_module_ros_repositories,
+    "boost",
+)
