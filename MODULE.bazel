@@ -1,0 +1,21 @@
+module(
+    name = "folly",
+    version = "2024.05.13.00",
+)
+
+bazel_dep(name = "double-conversion", version = "")
+bazel_dep(name = "zlib", version = "1.2.13")
+bazel_dep(name = "gflags", version = "2.2.2")
+bazel_dep(name = "glog", version = "0.5.0")
+bazel_dep(name = "fmt", version = "8.1.1")
+bazel_dep(name = "boringssl", version = "0.0.0-20240126-22d349c", repo_name = "openssl")
+bazel_dep(name = "com_github_nelhage_rules_boost", version = "")
+bazel_dep(name = "googletest", version = "1.14.0")
+bazel_dep(name = "snappy", version = "1.2.0")
+bazel_dep(name = "zstd", version = "1.5.5.bcr.1")
+
+non_module_ros_repositories = use_extension("@com_github_nelhage_rules_boost//:boost/repositories.bzl", "non_module_dependencies")
+use_repo(
+    non_module_ros_repositories,
+    "boost",
+)
